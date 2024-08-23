@@ -1,0 +1,21 @@
+select
+B.OSUSER OSUSER_BLOQUADOR
+,A.OSUSER OSUSER_BLOQUADO
+,D.OBJECT_NAME
+,B.USERNAME OWNER_BLOQUEADOR
+,A.USERNAME OWNER_BLOQUEADO
+,A.blocking_session sessao_bloqueadora
+,A.sid sessao_sendo_bloqueada
+,A.INST_ID INSANCIA_BLOQUEADORA
+,B.INST_ID INSANCIA_SENDO_BLOQUEADA
+,A.serial#
+,A.wait_class
+,A.machine
+,A.seconds_in_wait
+from gv$session A,gv$session B,gv$locked_object C, dba_objects D where
+A.blocking_session=B.SID
+AND A.blocking_session is not null
+and A.INST_ID = C.INST_ID
+and A.sid = C.session_id
+and C.object_id = D.object_id
+order by A.blocking_session;
