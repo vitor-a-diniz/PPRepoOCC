@@ -1,0 +1,42 @@
+ -- count sessoes por usários
+SELECT USER, COUNT(*) AS connection_count FROM information_schema.PROCESSLIST GROUP BY USER;
+
+-- count sessoes 
+SELECT 
+    COUNT(*) AS connection_count
+FROM 
+    information_schema.processlist;
+
+-- count filtrando usuario 
+SELECT 
+    COUNT(*) AS connection_count
+FROM 
+    information_schema.processlist
+WHERE 
+    USER = 'usr_dda_notifications';
+
+-- sessoes em execuções 
+SELECT 
+    THREAD_ID, 
+    PROCESSLIST_USER AS USER, 
+    PROCESSLIST_HOST AS HOST, 
+    PROCESSLIST_DB AS DB, 
+    PROCESSLIST_COMMAND AS COMMAND, 
+    PROCESSLIST_TIME AS TIME, 
+    PROCESSLIST_STATE AS STATE, 
+    PROCESSLIST_INFO AS INFO 
+FROM 
+    performance_schema.threads
+WHERE PROCESSLIST_USER IS NOT NULL
+-- and PROCESSLIST_STATE = 'System lock';
+and PROCESSLIST_COMMAND <> 'Sleep'
+order by PROCESSLIST_TIME desc;
+
+
+-- matar query
+SELECT
+CONCAT('call mysql.rds_kill (', id, ');')
+FROM INFORMATION_SCHEMA.PROCESSLIST
+WHERE `User` = 'usr_airflow'
+AND `db` = 'dda_notifications'
+-- and time > 600;
